@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediLearn - Explore Courses</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #1e293b;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background-color: white;
+            border-bottom: 1px solid #eef1f6;
+            padding: 0.8rem 0;
+        }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b !important;
+            margin: 0 0.8rem;
+        }
+        .nav-link.active {
+            color: #1d7afc !important;
+        }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: none;
+            transition: background 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #e2e8f0;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fed7aa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7c2d12;
+            font-weight: 700;
+        }
+
+        /* --- Sidebar / Filters --- */
+        .sidebar-container {
+            background: white;
+            border-right: 1px solid #eef1f6;
+            height: calc(100vh - 73px); /* Subtract navbar height */
+            position: sticky;
+            top: 73px;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+
+        .filter-title {
+            font-weight: 800;
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: #0f172a;
+        }
+        
+        .search-input {
+            background-color: #f1f5f9;
+            border: none;
+            padding: 0.75rem 1rem 0.75rem 2.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-size: 0.9rem;
+        }
+        .search-wrapper {
+            position: relative;
+            margin-bottom: 2rem;
+        }
+        .search-icon {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        .filter-group {
+            border-bottom: 1px solid #f1f5f9;
+            padding-bottom: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .filter-group:last-child {
+            border-bottom: none;
+        }
+        .filter-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            cursor: pointer;
+        }
+        
+        .custom-checkbox .form-check-input {
+            border-color: #cbd5e1;
+            width: 1.1em;
+            height: 1.1em;
+            margin-right: 0.5rem;
+        }
+        .custom-checkbox .form-check-input:checked {
+            background-color: #1d7afc;
+            border-color: #1d7afc;
+        }
+        .custom-checkbox label {
+            font-size: 0.9rem;
+            color: #475569;
+            cursor: pointer;
+        }
+
+        .btn-apply {
+            background-color: #1d7afc;
+            color: white;
+            font-weight: 600;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: none;
+            margin-bottom: 0.75rem;
+        }
+        .btn-clear {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            font-weight: 600;
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: 0.5rem;
+            border: none;
+        }
+
+        /* --- Main Content --- */
+        .main-content {
+            padding: 2rem;
+        }
+        
+        .page-header {
+            font-weight: 800;
+            font-size: 1.75rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.5px;
+        }
+
+        /* Pills & Sort */
+        .filter-pill {
+            background: white;
+            border: 1px solid transparent;
+            color: #64748b;
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-right: 0.5rem;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        .filter-pill:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .filter-pill.active {
+            background-color: #dbeafe; /* Light Blue */
+            color: #1d7afc;
+            font-weight: 700;
+        }
+
+        .sort-select {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem 2rem 0.5rem 1rem;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #0f172a;
+            cursor: pointer;
+            background-color: white;
+        }
+        .view-btn {
+            background: white;
+            border: 1px solid #e2e8f0;
+            width: 36px;
+            height: 36px;
+            border-radius: 0.375rem;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .view-btn.active {
+            background-color: #f1f5f9;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+
+        /* --- Course Card --- */
+        .course-card {
+            background: white;
+            border: 1px solid #eef1f6;
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+        }
+        .course-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05);
+        }
+        .card-img-top {
+            height: 180px;
+            object-fit: cover;
+            background-color: #e2e8f0;
+        }
+        .card-body {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            height: calc(100% - 180px);
+        }
+        .course-title {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #0f172a;
+            margin-bottom: 1rem;
+            line-height: 1.4;
+            flex-grow: 1; /* Pushes footer down */
+        }
+        .instructor-row {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+        .instructor-img {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .instructor-name {
+            font-size: 0.85rem;
+            color: #64748b;
+            font-weight: 500;
+        }
+        .card-footer-custom {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+            color: #64748b;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 1rem;
+        }
+        .tag-icon {
+            margin-right: 0.25rem;
+            color: #94a3b8;
+        }
+
+        /* Pagination */
+        .pagination .page-link {
+            border: none;
+            color: #64748b;
+            font-weight: 600;
+            margin: 0 0.25rem;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+        }
+        .pagination .page-link:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .pagination .active .page-link {
+            background-color: #1d7afc;
+            color: white;
+        }
+
+        /* Responsive */
+        @media (max-width: 991.98px) {
+            .sidebar-col {
+                display: none; /* Hide standard sidebar on mobile */
+            }
+            .mobile-filter-btn {
+                display: block;
+            }
+        }
+        @media (min-width: 992px) {
+            .mobile-filter-btn {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar sticky-top">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-shield-halved text-primary"></i>
+                MedLearn
+            </a>
+            
+            <div class="d-none d-md-flex">
+                <a href="learner-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link active">Explore Courses</a>
+                <a href="courses.html" class="nav-link">My Courses</a>
+            </div>
+
+            <div class="d-flex align-items-center gap-3">
+                <button class="icon-btn">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <div class="user-avatar">JD</div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container-fluid">
+        <div class="row">
+            
+            <!-- Sidebar (Desktop) -->
+            <div class="col-lg-3 col-xl-2 sidebar-col p-0">
+                <div class="sidebar-container">
+                    <h5 class="filter-title">Filters</h5>
+                    
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                        <input type="text" class="search-input" placeholder="Search course names...">
+                    </div>
+
+                    <!-- Specialty Filter -->
+                    <div class="filter-group">
+                        <div class="filter-header" data-bs-toggle="collapse" data-bs-target="#specialtyCollapse">
+                            Specialty <i class="fa-solid fa-chevron-up"></i>
+                        </div>
+                        <div class="collapse show" id="specialtyCollapse">
+                            <div class="custom-checkbox mb-2">
+                                <input class="form-check-input" type="checkbox" id="spec1" checked>
+                                <label for="spec1">Cardiology</label>
+                            </div>
+                            <div class="custom-checkbox mb-2">
+                                <input class="form-check-input" type="checkbox" id="spec2">
+                                <label for="spec2">Neurology</label>
+                            </div>
+                            <div class="custom-checkbox mb-2">
+                                <input class="form-check-input" type="checkbox" id="spec3">
+                                <label for="spec3">Pediatrics</label>
+                            </div>
+                            <div class="custom-checkbox">
+                                <input class="form-check-input" type="checkbox" id="spec4">
+                                <label for="spec4">Oncology</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Difficulty Filter -->
+                    <div class="filter-group">
+                        <div class="filter-header" data-bs-toggle="collapse" data-bs-target="#diffCollapse">
+                            Difficulty <i class="fa-solid fa-chevron-down"></i>
+                        </div>
+                        <div class="collapse" id="diffCollapse">
+                            <div class="custom-checkbox mb-2"><input class="form-check-input" type="checkbox" id="d1"><label for="d1">Beginner</label></div>
+                            <div class="custom-checkbox mb-2"><input class="form-check-input" type="checkbox" id="d2"><label for="d2">Intermediate</label></div>
+                            <div class="custom-checkbox"><input class="form-check-input" type="checkbox" id="d3"><label for="d3">Advanced</label></div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="mt-4">
+                        <button class="btn-apply">Apply Filters</button>
+                        <button class="btn-clear">Clear All</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="col-12 col-lg-9 col-xl-10 main-content">
+                
+                <!-- Mobile Filter Button -->
+                <button class="btn btn-outline-primary mobile-filter-btn mb-3 w-100" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasFilters">
+                    <i class="fa-solid fa-filter me-2"></i> Show Filters
+                </button>
+
+                <!-- Header -->
+                <h1 class="page-header">Explore Courses</h1>
+                
+                <!-- Toolbar -->
+                <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-3">
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="#" class="filter-pill active">All</a>
+                        <a href="#" class="filter-pill">Latest Uploads</a>
+                        <a href="#" class="filter-pill">Popular</a>
+                        <a href="#" class="filter-pill">Trending</a>
+                    </div>
+                    
+                    <div class="d-flex align-items-center gap-2">
+                        <select class="sort-select form-select form-select-sm" style="width: auto;">
+                            <option selected>Sort by: Newest</option>
+                            <option value="1">Rating</option>
+                            <option value="2">Popularity</option>
+                        </select>
+                        <div class="btn-group">
+                            <button class="view-btn active"><i class="fa-solid fa-table-cells-large"></i></button>
+                            <button class="view-btn"><i class="fa-solid fa-list"></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Course Grid -->
+                <div class="row g-4 mb-5">
+                    
+                    <!-- Card 1 -->
+                    <div class="col-md-6 col-xl-3">
+                        <div class="course-card">
+                            <img src="https://images.unsplash.com/photo-1576091160550-217358c7db81?q=80&w=800&auto=format&fit=crop" class="card-img-top" alt="ACLS">
+                            <div class="card-body">
+                                <h3 class="course-title">Advanced Cardiac Life Support (ACLS)</h3>
+                                <div class="instructor-row">
+                                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100&auto=format&fit=crop" class="instructor-img" alt="Inst">
+                                    <span class="instructor-name">Dr. Emily Carter</span>
+                                </div>
+                                <div class="card-footer-custom">
+                                    <span><i class="fa-solid fa-chart-simple tag-icon"></i> Advanced</span>
+                                    <span><i class="fa-solid fa-award tag-icon"></i> Certificate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 2 -->
+                    <div class="col-md-6 col-xl-3">
+                        <div class="course-card">
+                            <img src="https://images.unsplash.com/photo-1532094349884-543bc11b234d?q=80&w=800&auto=format&fit=crop" class="card-img-top" alt="Microscope">
+                            <div class="card-body">
+                                <h3 class="course-title">Introduction to Medical Imaging</h3>
+                                <div class="instructor-row">
+                                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=100&auto=format&fit=crop" class="instructor-img" alt="Inst">
+                                    <span class="instructor-name">Dr. Ben Hanson</span>
+                                </div>
+                                <div class="card-footer-custom">
+                                    <span><i class="fa-solid fa-chart-simple tag-icon"></i> Beginner</span>
+                                    <span><i class="fa-solid fa-award tag-icon"></i> Certificate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 3 -->
+                    <div class="col-md-6 col-xl-3">
+                        <div class="course-card">
+                            <img src="https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=800&auto=format&fit=crop" class="card-img-top" alt="Surgery">
+                            <div class="card-body">
+                                <h3 class="course-title">Pediatric Emergency Medicine</h3>
+                                <div class="instructor-row">
+                                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100&auto=format&fit=crop" class="instructor-img" alt="Inst">
+                                    <span class="instructor-name">Dr. Emily Carter</span>
+                                </div>
+                                <div class="card-footer-custom">
+                                    <span><i class="fa-solid fa-chart-simple tag-icon"></i> Intermediate</span>
+                                    <span><i class="fa-solid fa-award tag-icon"></i> Certificate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Card 4 -->
+                    <div class="col-md-6 col-xl-3">
+                        <div class="course-card">
+                            <img src="https://images.unsplash.com/photo-1559757175-5700dde675bc?q=80&w=800&auto=format&fit=crop" class="card-img-top" alt="Brain">
+                            <div class="card-body">
+                                <h3 class="course-title">Neurological Examination Techniques</h3>
+                                <div class="instructor-row">
+                                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=100&auto=format&fit=crop" class="instructor-img" alt="Inst">
+                                    <span class="instructor-name">Dr. Ben Hanson</span>
+                                </div>
+                                <div class="card-footer-custom">
+                                    <span><i class="fa-solid fa-chart-simple tag-icon"></i> Advanced</span>
+                                    <span><i class="fa-solid fa-award tag-icon"></i> Certificate</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Pagination -->
+                <div class="d-flex justify-content-center">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination">
+                            <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-chevron-left"></i></a></li>
+                            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                            <li class="page-item"><a class="page-link" href="#">2</a></li>
+                            <li class="page-item"><a class="page-link" href="#">3</a></li>
+                            <li class="page-item"><span class="page-link bg-transparent border-0 text-muted">...</span></li>
+                            <li class="page-item"><a class="page-link" href="#">8</a></li>
+                            <li class="page-item"><a class="page-link" href="#"><i class="fa-solid fa-chevron-right"></i></a></li>
+                        </ul>
+                    </nav>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Offcanvas Filters (Mobile) -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasFilters" aria-labelledby="offcanvasFiltersLabel">
+        <div class="offcanvas-header border-bottom">
+            <h5 class="offcanvas-title fw-bold" id="offcanvasFiltersLabel">Filters</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+        </div>
+        <div class="offcanvas-body p-4">
+            <!-- Reuse Sidebar Content -->
+            <div class="search-wrapper">
+                <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                <input type="text" class="search-input" placeholder="Search course names...">
+            </div>
+
+            <!-- Specialty Filter -->
+            <div class="filter-group">
+                <div class="filter-header" data-bs-toggle="collapse" data-bs-target="#mobileSpec">
+                    Specialty <i class="fa-solid fa-chevron-down"></i>
+                </div>
+                <div class="collapse show" id="mobileSpec">
+                    <div class="custom-checkbox mb-2"><input class="form-check-input" type="checkbox" id="m_s1" checked><label for="m_s1">Cardiology</label></div>
+                    <div class="custom-checkbox mb-2"><input class="form-check-input" type="checkbox" id="m_s2"><label for="m_s2">Neurology</label></div>
+                    <div class="custom-checkbox mb-2"><input class="form-check-input" type="checkbox" id="m_s3"><label for="m_s3">Pediatrics</label></div>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="mt-auto">
+                <button class="btn-apply" data-bs-dismiss="offcanvas">Apply Filters</button>
+                <button class="btn-clear">Clear All</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script>
+$(function () {
+    $.get("api/auth/session.php", function (res) {
+        if (!res.logged_in) {
+            window.location.href = "login.html";
+        }
+    });
+});
+</script>
+<script>
+$.get("api/courses/specialties.php", function (data) {
+    let html = "";
+    $.each(data, function (_, s) {
+        html += `
+        <div class="custom-checkbox mb-2">
+            <input class="form-check-input category-filter" type="checkbox" value="${s.id}">
+            <label>${s.name}</label>
+        </div>`;
+    });
+    $("#specialtyCollapse").html(html);
+});
+</script>
+<script>
+function loadCourses(page = 1) {
+    let search = $(".search-input").val();
+
+    let categories = [];
+    $(".category-filter:checked").each(function () {
+        categories.push($(this).val());
+    });
+
+    $.get("api/courses/list.php", {
+        page,
+        search,
+        category: categories
+    }, function (courses) {
+
+        let html = "";
+        $.each(courses, function (_, c) {
+            html += `
+            <div class="col-md-6 col-xl-3">
+                <div class="course-card">
+                    <img src="${c.cover_image}" class="card-img-top">
+                    <div class="card-body">
+                        <h3 class="course-title">${c.title}</h3>
+                        <div class="instructor-row">
+                            <span class="instructor-name">${c.instructor}</span>
+                        </div>
+                        <div class="card-footer-custom">
+                            <span>${c.difficulty}</span>
+                            ${c.has_certificate ? '<span>Certificate</span>' : ''}
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        });
+
+        $(".row.g-4.mb-5").html(html);
+    });
+}
+
+$(function () {
+    loadCourses();
+});
+</script>
+<script>
+$(".btn-apply").click(function () {
+    loadCourses();
+});
+
+$(".btn-clear").click(function () {
+    $("input[type=checkbox]").prop("checked", false);
+    $(".search-input").val('');
+    loadCourses();
+});
+
+$(".search-input").on("keyup", function () {
+    loadCourses();
+});
+</script>
+<script>
+$(".pagination .page-link").click(function (e) {
+    e.preventDefault();
+    let page = $(this).text();
+    if (!isNaN(page)) loadCourses(page);
+});
+</script>
+
+</body>
+</html>

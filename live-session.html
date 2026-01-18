@@ -1,0 +1,605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live: ACLS Update - CardioLearn</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a; /* Dark background for immersive mode */
+            color: #1e293b;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- Navbar (Dark Theme) --- */
+        .navbar {
+            background-color: white;
+            border-bottom: 1px solid #eef1f6;
+            height: 64px;
+            padding: 0 1.5rem;
+            flex-shrink: 0;
+            z-index: 1030;
+        }
+        .session-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .live-badge {
+            background-color: #fee2e2;
+            color: #ef4444;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            text-transform: uppercase;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+        .session-timer {
+            font-family: monospace;
+            font-size: 0.95rem;
+            color: #64748b;
+            font-weight: 600;
+        }
+        .btn-leave {
+            background-color: #ef4444;
+            color: white;
+            font-weight: 600;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-size: 0.9rem;
+            transition: background 0.2s;
+        }
+        .btn-leave:hover {
+            background-color: #dc2626;
+        }
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: none;
+            transition: background 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #e2e8f0;
+        }
+
+        /* --- Main Layout --- */
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Stage / Video Area --- */
+        .stage-area {
+            flex-grow: 1;
+            background-color: #000;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        /* Presentation Slide */
+        .presentation-slide {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+
+        /* Video Grid (e.g., active speaker overlay) */
+        .video-overlay {
+            position: absolute;
+            bottom: 2rem;
+            right: 2rem;
+            width: 240px;
+            aspect-ratio: 16/9;
+            background-color: #1e293b;
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+        .speaker-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .speaker-name {
+            position: absolute;
+            bottom: 0.5rem;
+            left: 0.75rem;
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            background: rgba(0,0,0,0.5);
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+
+        /* Controls Bar */
+        .controls-bar {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(8px);
+            padding: 0.75rem 1.5rem;
+            border-radius: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255,255,255,0.1);
+            z-index: 10;
+        }
+        .control-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background-color: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+        .control-btn:hover {
+            background-color: rgba(255,255,255,0.2);
+            transform: scale(1.05);
+        }
+        .control-btn.active-state {
+            background-color: #1d7afc; /* Blue when active (e.g., Share Screen) */
+            color: white;
+        }
+        .control-btn.danger-state {
+            background-color: #ef4444;
+            color: white;
+        }
+        .divider-v {
+            width: 1px;
+            height: 24px;
+            background-color: rgba(255,255,255,0.2);
+            margin: 0 0.25rem;
+        }
+
+        /* --- Right Sidebar (Chat) --- */
+        .sidebar-right {
+            width: 360px;
+            background: white;
+            border-left: 1px solid #eef1f6;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            transition: transform 0.3s ease;
+        }
+        
+        /* Sidebar Tabs */
+        .chat-tabs {
+            display: flex;
+            border-bottom: 1px solid #eef1f6;
+            background: white;
+        }
+        .chat-tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+        }
+        .chat-tab:hover { color: #334155; }
+        .chat-tab.active {
+            color: #1d7afc;
+            border-bottom-color: #1d7afc;
+        }
+        
+        /* Chat Area */
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background-color: #fff;
+        }
+        
+        .message-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .msg-content {
+            flex: 1;
+        }
+        .msg-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 0.2rem;
+        }
+        .msg-author {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #0f172a;
+        }
+        .msg-time {
+            font-size: 0.7rem;
+            color: #94a3b8;
+        }
+        .msg-bubble {
+            background-color: #f1f5f9;
+            padding: 0.6rem 0.85rem;
+            border-radius: 0 1rem 1rem 1rem;
+            font-size: 0.9rem;
+            color: #334155;
+            line-height: 1.4;
+        }
+        .msg-instructor .msg-bubble {
+            background-color: #e0f2fe; /* Light blue */
+            color: #0c4a6e;
+        }
+        
+        /* Chat Input */
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #eef1f6;
+            background: white;
+        }
+        .input-group-custom {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+        .chat-input {
+            width: 100%;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .chat-input:focus {
+            border-color: #1d7afc;
+            background-color: white;
+        }
+        .btn-send {
+            position: absolute;
+            right: 8px;
+            background: transparent;
+            color: #1d7afc;
+            border: none;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .btn-send:hover {
+            background-color: #f1f5f9;
+        }
+
+        /* Responsive Overlay */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+            display: none;
+        }
+        .sidebar-overlay.show { display: block; }
+
+        /* Responsive Logic */
+        @media (max-width: 991.98px) {
+            .navbar {
+                padding: 0 1rem;
+            }
+            .session-title span {
+                display: none; /* Hide full title on mobile */
+            }
+            .session-title::after {
+                content: "Live Session";
+            }
+            .sidebar-right {
+                position: fixed;
+                top: 64px;
+                right: 0;
+                height: calc(100vh - 64px);
+                z-index: 1045;
+                transform: translateX(100%);
+            }
+            .sidebar-right.show {
+                transform: translateX(0);
+            }
+            .video-overlay {
+                width: 120px;
+                bottom: 6rem;
+                right: 1rem;
+            }
+            .controls-bar {
+                width: 90%;
+                justify-content: space-around;
+                padding: 0.75rem 1rem;
+            }
+            .divider-v { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="d-flex align-items-center gap-3" style="min-width: 0; flex: 1;">
+            <div class="d-flex align-items-center gap-2">
+                 <button class="btn btn-primary d-flex align-items-center justify-content-center p-0 rounded" style="width: 28px; height: 28px;">
+                    <i class="fa-solid fa-pause fa-xs"></i>
+                 </button>
+            </div>
+            
+            <div class="session-title">
+                <span>Live: Advanced Cardiac Life Support | Dr. Emily Carter</span>
+            </div>
+            
+            <div class="live-badge">
+                <div class="live-dot"></div> Live
+            </div>
+            
+            <div class="session-timer d-none d-sm-block">01:23:45</div>
+        </div>
+
+        <div class="d-flex align-items-center gap-3">
+            <button class="btn-leave" onclick="window.open('live-waiting-room.html', '_self')">Leave Session</button>
+            <button class="icon-btn" onclick="toggleChat()">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+            <!-- Mobile Chat Toggle -->
+            <button class="icon-btn d-lg-none" onclick="toggleChat()">
+                <i class="fa-regular fa-comments"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Overlay for Mobile Sidebar -->
+        <div class="sidebar-overlay" id="overlay" onclick="toggleChat()"></div>
+
+        <!-- STAGE AREA -->
+        <div class="stage-area">
+            
+            <!-- Main Content (Slide) -->
+            <img src="https://images.unsplash.com/photo-1544531586-fde5298cdd40?q=80&w=1920&auto=format&fit=crop" 
+                 alt="Presentation Slide" class="presentation-slide">
+            
+            <!-- Video Overlay (Speaker) -->
+            <div class="video-overlay">
+                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400&auto=format&fit=crop" 
+                     class="speaker-video" alt="Dr. Emily Carter">
+                <div class="speaker-name">Dr. Emily Carter</div>
+            </div>
+
+            <!-- Floating Controls -->
+            <div class="controls-bar">
+                <button class="control-btn" title="Mute Microphone">
+                    <i class="fa-solid fa-microphone-slash"></i>
+                </button>
+                <button class="control-btn" title="Turn Off Camera">
+                    <i class="fa-solid fa-video"></i>
+                </button>
+                
+                <div class="divider-v"></div>
+                
+                <button class="control-btn active-state" title="Share Screen">
+                    <i class="fa-solid fa-arrow-up-from-bracket"></i>
+                </button>
+                <button class="control-btn" title="Captions">
+                    <i class="fa-solid fa-closed-captioning"></i>
+                </button>
+                
+                <div class="divider-v"></div>
+                
+                <button class="control-btn danger-state" title="End Call">
+                    <i class="fa-solid fa-phone-slash"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- RIGHT SIDEBAR: Chat & Tools -->
+        <aside class="sidebar-right" id="chatSidebar">
+            <!-- Tabs -->
+            <div class="chat-tabs">
+                <div class="chat-tab active">Chat</div>
+                <div class="chat-tab" onclick="window.open('live-session-quiz.html', '_self')" >Q&A</div>
+                <div class="chat-tab">Participants (24)</div>
+                <div class="chat-tab">Resources</div>
+            </div>
+
+            <!-- Chat Stream -->
+            <div class="chat-messages" id="chatContainer">
+                
+                <!-- Msg 1 (Instructor) -->
+                <div class="message-item msg-instructor">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="Instructor">
+                    <div class="msg-content">
+                        <div class="msg-header">
+                            <span class="msg-author">Dr. Emily Carter</span>
+                            <span class="msg-time">10:32 AM</span>
+                        </div>
+                        <div class="msg-bubble">
+                            Welcome everyone. We'll be starting in just a moment.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Msg 2 -->
+                <div class="message-item">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="Ben">
+                    <div class="msg-content">
+                        <div class="msg-header">
+                            <span class="msg-author">Dr. Ben Hanna</span>
+                            <span class="msg-time">10:33 AM</span>
+                        </div>
+                        <div class="msg-bubble">
+                            Looking forward to this session! Thanks for hosting.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Msg 3 -->
+                <div class="message-item">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="Maria">
+                    <div class="msg-content">
+                        <div class="msg-header">
+                            <span class="msg-author">Maria Rodriguez, RN</span>
+                            <span class="msg-time">10:35 AM</span>
+                        </div>
+                        <div class="msg-bubble">
+                            Hello from Seattle! Good to be here.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Msg 4 (Self) -->
+                <div class="message-item">
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="You">
+                    <div class="msg-content">
+                        <div class="msg-header">
+                            <span class="msg-author">You</span>
+                            <span class="msg-time">10:36 AM</span>
+                        </div>
+                        <div class="msg-bubble">
+                            Will the slides be available for download after the session?
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Chat Input -->
+            <div class="chat-input-area">
+                <div class="input-group-custom">
+                    <input type="text" class="chat-input" placeholder="Send a message..." id="messageInput" onkeypress="handleKeyPress(event)">
+                    <button class="btn-send" onclick="sendMessage()">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle Sidebar for Mobile
+        function toggleChat() {
+            const sidebar = document.getElementById('chatSidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        // Simple mock send message function
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if(!text) return;
+
+            const chatContainer = document.getElementById('chatContainer');
+            
+            // Create msg HTML
+            const msgDiv = document.createElement('div');
+            msgDiv.className = 'message-item';
+            msgDiv.innerHTML = `
+                <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="You">
+                <div class="msg-content">
+                    <div class="msg-header">
+                        <span class="msg-author">You</span>
+                        <span class="msg-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                    <div class="msg-bubble">
+                        ${text}
+                    </div>
+                </div>
+            `;
+            
+            chatContainer.appendChild(msgDiv);
+            input.value = '';
+            
+            // Scroll to bottom
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        }
+    </script>
+</body>
+</html>

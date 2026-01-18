@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediLearn - Log in</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#eff6ff',
+                            100: '#dbeafe',
+                            500: '#3b82f6',
+                            600: '#2563eb',
+                            700: '#1d4ed8',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Smooth fade animation for tab switching */
+        .fade-enter {
+            opacity: 0;
+            transform: translateY(5px);
+            animation: fadeIn 0.3s forwards ease-out;
+        }
+        @keyframes fadeIn {
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body class="h-screen w-full bg-white overflow-hidden flex">
+
+    <!-- Left Section: Hero Image (Hidden on Mobile) -->
+    <div class="hidden lg:flex lg:w-1/2 relative bg-gray-900 h-full">
+        <!-- Background Image -->
+        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=2000&auto=format&fit=crop" 
+             alt="Medical Team" 
+             class="absolute inset-0 w-full h-full object-cover opacity-60">
+        
+        <!-- Gradient Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent"></div>
+
+        <!-- Content -->
+        <div class="relative z-10 p-12 flex flex-col justify-end h-full w-full">
+            <div class="mb-6">
+                <div class="flex items-center gap-3 mb-4 text-white">
+                    <div class="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center border border-white/30">
+                        <i class="fa-solid fa-plus text-white text-xl"></i>
+                    </div>
+                    <span class="text-3xl font-bold tracking-tight">MediLearn</span>
+                </div>
+                <p class="text-gray-200 text-lg font-light max-w-md leading-relaxed">
+                    Advanced Medical Training. Simplified. Join thousands of healthcare professionals elevating their practice.
+                </p>
+            </div>
+            
+            <!-- Testimonial / Social Proof (Optional Addition for realism) -->
+            <div class="flex items-center gap-4 pt-6 border-t border-white/10">
+                <div class="flex -space-x-3">
+                    <img class="w-10 h-10 rounded-full border-2 border-gray-900" src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80" alt="User">
+                    <img class="w-10 h-10 rounded-full border-2 border-gray-900" src="https://images.unsplash.com/photo-1580489944761-15a19d654956?auto=format&fit=crop&w=100&q=80" alt="User">
+                    <img class="w-10 h-10 rounded-full border-2 border-gray-900" src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80" alt="User">
+                </div>
+                <div class="text-sm text-gray-300">
+                    <span class="font-bold text-white">4.9/5</span> rating from 20k+ doctors
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right Section: Login Form -->
+    <div class="w-full lg:w-1/2 h-full overflow-y-auto flex flex-col items-center justify-center p-6 sm:p-12">
+        <div class="w-full max-w-md space-y-8">
+            
+            <!-- Mobile Header (Visible only on mobile) -->
+            <div class="lg:hidden flex items-center gap-2 mb-8 text-brand-700">
+                <div class="w-8 h-8 bg-brand-600 rounded flex items-center justify-center">
+                    <i class="fa-solid fa-plus text-white text-sm"></i>
+                </div>
+                <span class="text-xl font-bold">MediLearn</span>
+            </div>
+
+            <!-- Header -->
+            <div class="text-left">
+                <h2 class="text-3xl font-bold text-gray-900 tracking-tight">Log in to Your Account</h2>
+                <p class="mt-2 text-sm text-gray-500">Welcome back! Please enter your details.</p>
+            </div>
+
+            <!-- Tab Switcher -->
+            <div class="flex border-b border-gray-200">
+                <button onclick="switchTab('email')" id="tab-email" class="pb-3 px-4 text-sm font-semibold text-brand-600 border-b-2 border-brand-600 transition-colors focus:outline-none">
+                    Email
+                </button>
+                <button onclick="switchTab('phone')" id="tab-phone" class="pb-3 px-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition-colors focus:outline-none ml-4">
+                    Phone
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form onsubmit="handleLogin(event)" class="space-y-6">
+                
+                <!-- Dynamic Input Group -->
+                <div class="space-y-1.5" id="input-group">
+                    <label id="input-label" for="user-input" class="block text-sm font-medium text-gray-700">Email</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i id="input-icon" class="fa-regular fa-envelope text-gray-400 text-sm"></i>
+                        </div>
+                        <input type="email" id="user-input" 
+                               class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-shadow" 
+                               placeholder="you@example.com" required>
+                    </div>
+                </div>
+
+                <!-- Password Input -->
+                <div class="space-y-1.5">
+                    <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i class="fa-solid fa-lock text-gray-400 text-sm"></i>
+                        </div>
+                        <input type="password" id="password" 
+                               class="block w-full pl-10 pr-3 py-2.5 border border-gray-300 rounded-lg text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-brand-500 sm:text-sm transition-shadow" 
+                               placeholder="Enter your password" required>
+                    </div>
+                </div>
+
+                <!-- Forgot Password Row -->
+                <div class="flex items-center justify-end">
+                    <a href="forgotpassword.html" class="text-sm font-semibold text-brand-600 hover:text-brand-700 transition-colors">Forgot Password?</a>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-semibold text-white bg-brand-600 hover:bg-brand-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-500 transition-all transform active:scale-[0.98]">
+                    Log In
+                </button>
+
+                <!-- Divider -->
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-200"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">or</span>
+                    </div>
+                </div>
+
+                <!-- SSO Section -->
+                <div class="text-center">
+                    <p class="text-xs text-gray-500 uppercase tracking-wider font-medium mb-3">Or log in with your organization</p>
+                    <button type="button" class="w-full flex items-center justify-center gap-2 py-2.5 px-4 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-gray-50 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-300 transition-colors">
+                        <i class="fa-solid fa-building text-gray-400"></i>
+                        Log in with SSO
+                    </button>
+                </div>
+            </form>
+
+            <!-- Footer -->
+            <p class="text-center text-sm text-gray-600">
+                Don't have an account? 
+                <a href="signup.html" class="font-semibold text-brand-600 hover:text-brand-700 transition-colors">Sign Up</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Interactive Scripts -->
+    <!-- <script>
+        let currentTab = 'email';
+
+        function switchTab(tab) {
+            if (currentTab === tab) return;
+            currentTab = tab;
+
+            const emailTab = document.getElementById('tab-email');
+            const phoneTab = document.getElementById('tab-phone');
+            const label = document.getElementById('input-label');
+            const input = document.getElementById('user-input');
+            const icon = document.getElementById('input-icon');
+            const group = document.getElementById('input-group');
+
+            // Animate input change
+            group.classList.remove('fade-enter');
+            void group.offsetWidth; // Trigger reflow
+            group.classList.add('fade-enter');
+
+            if (tab === 'email') {
+                // Style Tabs
+                emailTab.className = "pb-3 px-4 text-sm font-semibold text-brand-600 border-b-2 border-brand-600 transition-colors focus:outline-none";
+                phoneTab.className = "pb-3 px-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition-colors focus:outline-none ml-4";
+                
+                // Update Inputs
+                label.textContent = "Email";
+                input.type = "email";
+                input.placeholder = "you@example.com";
+                icon.className = "fa-regular fa-envelope text-gray-400 text-sm";
+            } else {
+                // Style Tabs
+                phoneTab.className = "pb-3 px-4 text-sm font-semibold text-brand-600 border-b-2 border-brand-600 transition-colors focus:outline-none ml-4";
+                emailTab.className = "pb-3 px-4 text-sm font-medium text-gray-500 border-b-2 border-transparent hover:text-gray-700 transition-colors focus:outline-none";
+                
+                // Update Inputs
+                label.textContent = "Phone Number";
+                input.type = "tel";
+                input.placeholder = "+91 123 456 7890";
+                icon.className = "fa-solid fa-phone text-gray-400 text-sm";
+            }
+            
+            input.value = ""; // Clear input on switch
+            input.focus();
+        }
+
+        function handleLogin(e) {
+            e.preventDefault();
+            const btn = e.target.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            const inputVal = document.getElementById('user-input').value;
+
+            // Loading state
+            btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...';
+            btn.disabled = true;
+            btn.classList.add('opacity-75', 'cursor-not-allowed');
+
+            setTimeout(() => {
+                alert(`Login Attempt:\nMethod: ${currentTab.toUpperCase()}\nValue: ${inputVal}\nPassword: ********`);
+                
+                // Reset state
+                btn.innerText = originalText;
+                btn.disabled = false;
+                btn.classList.remove('opacity-75', 'cursor-not-allowed');
+            }, 1000);
+            window.open('learner-dashboard.html', '_self');
+        }
+    </script> -->
+
+    <script>
+let currentTab = "email";
+
+function handleLogin(e) {
+    e.preventDefault();
+
+    const $btn = $("button[type='submit']");
+    const identifier = $("#user-input").val();
+    const password = $("#password").val();
+
+    if (!identifier || !password) {
+        alert("Please enter login details");
+        return;
+    }
+
+    $btn.html('<i class="fa-solid fa-circle-notch fa-spin mr-2"></i> Processing...');
+    $btn.prop("disabled", true);
+
+    $.ajax({
+        url: "api/auth/login.php",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            method: currentTab,
+            identifier: identifier,
+            password: password
+        }),
+        success: function (res) {
+            if (!res.success) {
+                alert(res.message);
+                return;
+            }
+
+            window.location.href = "learner-dashboard.html";
+        },
+        error: function () {
+            alert("Invalid credentials");
+        },
+        complete: function () {
+            $btn.prop("disabled", false).text("Log In");
+        }
+    });
+}
+</script>
+
+</body>
+</html>

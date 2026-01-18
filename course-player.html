@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Surgical Procedures Masterclass - Player</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #1e293b;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden; /* Main scroll handled by columns */
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background-color: white;
+            border-bottom: 1px solid #eef1f6;
+            height: 64px;
+            flex-shrink: 0;
+            z-index: 1030;
+        }
+        .navbar-brand {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .icon-btn {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: none;
+            transition: background 0.2s;
+            font-size: 0.9rem;
+        }
+        .icon-btn:hover {
+            background-color: #e2e8f0;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #fed7aa;
+            border: 2px solid white;
+        }
+
+        /* --- Layout Grid --- */
+        .main-container {
+            flex-grow: 1;
+            display: flex;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* --- Left Sidebar (Course Content) --- */
+        .sidebar-left {
+            width: 300px;
+            background: white;
+            border-right: 1px solid #eef1f6;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            overflow-y: auto;
+            transition: transform 0.3s ease;
+        }
+        .sidebar-header {
+            padding: 1rem 1.25rem;
+            font-weight: 700;
+            color: #0f172a;
+            border-bottom: 1px solid #f1f5f9;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* Module List */
+        .module-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .module-title {
+            padding: 1rem 1.25rem 0.5rem 1.25rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: #64748b;
+        }
+        .lesson-item {
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            cursor: pointer;
+            transition: background 0.2s;
+            color: #475569;
+            font-size: 0.9rem;
+            font-weight: 500;
+            text-decoration: none;
+            border-left: 3px solid transparent;
+        }
+        .lesson-item:hover {
+            background-color: #f8fafc;
+        }
+        .lesson-item.active {
+            background-color: #e0f2fe;
+            color: #0c4a6e;
+            border-left-color: #1d7afc;
+        }
+        .lesson-item.completed .status-icon {
+            color: #10b981; /* Green */
+        }
+        .lesson-item.active .status-icon {
+            color: #1d7afc;
+        }
+        .status-icon {
+            color: #cbd5e1; /* Default gray */
+            width: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        /* --- Center Content (Video) --- */
+        .content-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 2rem;
+            background-color: #f8f9fa;
+        }
+        .breadcrumb-custom {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1rem;
+        }
+        .video-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16/9;
+            background-color: black;
+            border-radius: 1rem;
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+        .video-placeholder {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0.8;
+        }
+        .live-badge {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            background-color: #ef4444;
+            color: white;
+            font-weight: 700;
+            font-size: 0.75rem;
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .live-dot {
+            width: 8px;
+            height: 8px;
+            background-color: white;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .play-btn-lg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 64px;
+            height: 64px;
+            background-color: rgba(0,0,0,0.6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            backdrop-filter: blur(4px);
+            transition: transform 0.2s;
+        }
+        .play-btn-lg:hover {
+            transform: translate(-50%, -50%) scale(1.1);
+            background-color: #1d7afc;
+        }
+
+        .video-progress-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.8));
+            display: flex;
+            align-items: center;
+            padding: 0 1.5rem;
+            color: white;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        /* Nav Buttons */
+        .nav-actions {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        .btn-nav {
+            padding: 0.6rem 1.25rem;
+            border-radius: 0.5rem;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+        .btn-prev {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            border: none;
+        }
+        .btn-prev:hover { background-color: #cbd5e1; }
+        .btn-next {
+            background-color: #1d7afc;
+            color: white;
+            border: none;
+        }
+        .btn-next:hover { background-color: #1664d6; }
+
+        /* Accordion Custom */
+        .accordion-button:not(.collapsed) {
+            background-color: transparent;
+            color: #0f172a;
+            box-shadow: none;
+            font-weight: 700;
+        }
+        .accordion-button {
+            font-weight: 600;
+            color: #0f172a;
+        }
+        .accordion-button:focus {
+            box-shadow: none;
+            border-color: rgba(0,0,0,0.1);
+        }
+
+        /* --- Right Sidebar (Chat) --- */
+        .sidebar-right {
+            width: 380px;
+            background: white;
+            border-left: 1px solid #eef1f6;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .chat-tabs {
+            display: flex;
+            border-bottom: 1px solid #eef1f6;
+        }
+        .chat-tab {
+            flex: 1;
+            text-align: center;
+            padding: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            cursor: pointer;
+            font-size: 0.9rem;
+            border-bottom: 2px solid transparent;
+        }
+        .chat-tab.active {
+            color: #1d7afc;
+            border-bottom-color: #1d7afc;
+        }
+        
+        .chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+            background-color: #ffffff;
+        }
+        
+        .message-item {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-start;
+        }
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            flex-shrink: 0;
+        }
+        .msg-bubble {
+            background-color: #f1f5f9;
+            padding: 0.75rem 1rem;
+            border-radius: 0 1rem 1rem 1rem;
+            font-size: 0.9rem;
+            color: #334155;
+            position: relative;
+        }
+        .msg-instructor .msg-bubble {
+            background-color: #e0f2fe; /* Light blue for instructor */
+            color: #0c4a6e;
+        }
+        .msg-author {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 0.2rem;
+            display: block;
+        }
+        .instructor-badge {
+            font-size: 0.7rem;
+            color: #1d7afc;
+            margin-left: 0.25rem;
+        }
+
+        .chat-input-area {
+            padding: 1rem;
+            border-top: 1px solid #eef1f6;
+            background: white;
+        }
+        .chat-input-wrapper {
+            position: relative;
+        }
+        .chat-input {
+            width: 100%;
+            background-color: #f8fafc;
+            border: 1px solid #e2e8f0;
+            padding: 0.75rem 3rem 0.75rem 1rem;
+            border-radius: 0.5rem;
+            font-size: 0.9rem;
+            outline: none;
+        }
+        .chat-input:focus {
+            border-color: #1d7afc;
+            background-color: white;
+        }
+        .btn-send {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background-color: #1d7afc;
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 4px;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        /* --- Responsive Logic --- */
+        @media (max-width: 1199.98px) {
+            .sidebar-right {
+                width: 320px;
+            }
+            .sidebar-left {
+                width: 260px;
+            }
+        }
+        
+        @media (max-width: 991.98px) {
+            /* Tablet/Mobile Mode */
+            body {
+                height: auto;
+                overflow-y: auto;
+            }
+            .main-container {
+                flex-direction: column;
+                height: auto;
+                overflow: visible;
+            }
+            
+            /* Hide Left Sidebar initially (use Offcanvas logic) */
+            .sidebar-left {
+                position: fixed;
+                top: 0;
+                left: 0;
+                height: 100%;
+                z-index: 1045;
+                transform: translateX(-100%);
+                box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            }
+            .sidebar-left.show {
+                transform: translateX(0);
+            }
+            
+            /* Content Area takes full width */
+            .content-area {
+                width: 100%;
+                height: auto;
+                overflow: visible;
+                padding: 1rem;
+            }
+
+            /* Right Sidebar moves to bottom */
+            .sidebar-right {
+                width: 100%;
+                border-left: none;
+                border-top: 1px solid #eef1f6;
+                height: 500px; /* Fixed height for chat on mobile */
+            }
+            
+            /* Navbar adjustments */
+            .mobile-menu-btn {
+                display: block !important;
+            }
+        }
+        
+        .mobile-menu-btn {
+            display: none;
+        }
+        
+        /* Overlay for mobile sidebar */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1040;
+        }
+        .sidebar-overlay.show {
+            display: block;
+        }
+
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar px-3 px-lg-4">
+        <div class="d-flex align-items-center gap-3">
+            <!-- Mobile Toggle -->
+            <button class="icon-btn mobile-menu-btn" onclick="toggleSidebar()">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+            
+            <a class="navbar-brand" href="#">
+                <div class="bg-primary text-white rounded p-1 d-flex align-items-center justify-content-center" style="width: 28px; height: 28px;">
+                    <i class="fa-solid fa-plus fa-xs"></i>
+                </div>
+                Surgical Procedures Masterclass
+            </a>
+        </div>
+
+        <div class="d-flex align-items-center gap-2">
+            <button class="icon-btn">
+                <i class="fa-regular fa-bell"></i>
+            </button>
+            <button class="icon-btn">
+                <i class="fa-regular fa-circle-question"></i>
+            </button>
+            <div class="user-avatar ms-1"></div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="main-container">
+        
+        <!-- Overlay for Mobile -->
+        <div class="sidebar-overlay" id="overlay" onclick="toggleSidebar()"></div>
+
+        <!-- LEFT SIDEBAR: Course Content -->
+        <aside class="sidebar-left" id="leftSidebar">
+            <div class="sidebar-header">
+                Course Content
+                <button class="btn btn-sm btn-light border-0 d-lg-none" onclick="toggleSidebar()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Module 1 -->
+            <div class="module-title">Module 1: Introduction</div>
+            <ul class="module-list">
+                <li>
+                    <a href="#" class="lesson-item completed">
+                        <i class="fa-solid fa-circle-check status-icon"></i>
+                        1.1: Course Overview
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="lesson-item completed">
+                        <i class="fa-solid fa-circle-check status-icon"></i>
+                        1.2: Sterilization Principles
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Module 2 -->
+            <div class="module-title">Module 2: Basic Techniques</div>
+            <ul class="module-list">
+                <li>
+                    <a href="#" class="lesson-item completed">
+                        <i class="fa-solid fa-circle-check status-icon"></i>
+                        2.1: Instrument Handling
+                    </a>
+                </li>
+            </ul>
+
+            <!-- Module 3 -->
+            <div class="module-title">Module 3: Suture Skills</div>
+            <ul class="module-list">
+                <li>
+                    <a href="#" class="lesson-item">
+                        <div class="status-icon"><i class="fa-solid fa-play-circle text-primary"></i></div>
+                        3.1: Knot Tying
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="lesson-item active">
+                        <div class="status-icon"><i class="fa-solid fa-play-circle text-primary"></i></div>
+                        3.2: Advanced Suture Techniques
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="lesson-item">
+                        <div class="status-icon"><i class="fa-regular fa-circle"></i></div>
+                        3.3: Tissue Approximation
+                    </a>
+                </li>
+            </ul>
+        </aside>
+
+        <!-- CENTER: Content Area -->
+        <main class="content-area">
+            
+            <!-- Breadcrumb -->
+            <div class="breadcrumb-custom" onclick="window.open('course-details.html', '_self')" style="cursor: pointer">
+                Course Home / Module 3.2: Advanced Suture Techniques
+            </div>
+
+            <!-- Video Player -->
+            <div class="video-wrapper">
+                <img src="https://images.unsplash.com/photo-1551076805-e1869033e561?q=80&w=1200&auto=format&fit=crop" 
+                     class="video-placeholder" alt="Surgery Video">
+                
+                <!-- Live Badge -->
+                <div class="live-badge">
+                    <div class="live-dot"></div> LIVE
+                </div>
+
+                <!-- Play Button -->
+                <div class="play-btn-lg">
+                    <i class="fa-solid fa-play ps-1"></i>
+                </div>
+
+                <!-- Progress Bar Overlay -->
+                <div class="video-progress-bar">
+                    <span class="me-3">12:34</span>
+                    <div class="progress flex-grow-1" style="height: 4px; background: rgba(255,255,255,0.3);">
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: 35%"></div>
+                        <div class="position-absolute bg-white rounded-circle" style="width: 12px; height: 12px; left: 35%; top: 50%; transform: translate(-50%, -50%);"></div>
+                    </div>
+                    <span class="ms-3">45:12</span>
+                </div>
+            </div>
+
+            <!-- Title & Nav -->
+            <h2 class="fw-bold text-dark mb-4">Advanced Suture Techniques</h2>
+            
+            <div class="nav-actions">
+                <button class="btn-nav btn-prev">
+                    <i class="fa-solid fa-arrow-left me-2"></i> Previous
+                </button>
+                <button class="btn-nav btn-next">
+                    Next Lesson <i class="fa-solid fa-arrow-right ms-2"></i>
+                </button>
+            </div>
+
+            <!-- Accordion Details -->
+            <div class="accordion" id="courseAccordion">
+                
+                <!-- Transcript -->
+                <div class="accordion-item border-0 bg-white rounded mb-3 shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTranscript">
+                            Transcript
+                        </button>
+                    </h2>
+                    <div id="collapseTranscript" class="accordion-collapse collapse show" data-bs-parent="#courseAccordion">
+                        <div class="accordion-body text-secondary small" style="line-height: 1.7;">
+                            <strong class="text-primary">[00:12:34]</strong> Welcome back. In this segment, we will focus on the vertical mattress suture, a technique excellent for everting wound edges. Notice the "far-far, near-near" needle passes. It's crucial for minimizing tension and promoting better cosmetic outcomes...
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Resources -->
+                <div class="accordion-item border-0 bg-white rounded shadow-sm">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseResources">
+                            Downloads & Resources
+                        </button>
+                    </h2>
+                    <div id="collapseResources" class="accordion-collapse collapse" data-bs-parent="#courseAccordion">
+                        <div class="accordion-body">
+                            <ul class="list-unstyled mb-0">
+                                <li class="mb-2"><a href="#" class="text-decoration-none text-primary"><i class="fa-solid fa-file-pdf me-2"></i> Suture Guide.pdf</a></li>
+                                <li><a href="#" class="text-decoration-none text-primary"><i class="fa-solid fa-image me-2"></i> Diagram 3.2.png</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+
+        <!-- RIGHT SIDEBAR: Chat -->
+        <aside class="sidebar-right">
+            <!-- Tabs -->
+            <div class="chat-tabs">
+                <div class="chat-tab active">Live Chat</div>
+                <div class="chat-tab">Slides</div>
+                <div class="chat-tab">Comments</div>
+            </div>
+
+            <!-- Messages -->
+            <div class="chat-messages">
+                
+                <!-- Msg 1 -->
+                <div class="message-item">
+                    <img src="https://images.unsplash.com/photo-1544005313-94ddf0286df2?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="Eva">
+                    <div>
+                        <span class="msg-author">Dr. Eva Rostova</span>
+                        <div class="msg-bubble">
+                            Can you elaborate on the choice of suture material for this specific tissue type?
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Msg 2 (Instructor) -->
+                <div class="message-item msg-instructor">
+                    <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="Ken">
+                    <div>
+                        <span class="msg-author">Dr. Ken Miles <span class="instructor-badge">(Instructor)</span></span>
+                        <div class="msg-bubble">
+                            Excellent question. We opt for a 4-0 absorbable monofilament here to minimize tissue reaction. I'll show a comparison chart on the next slide.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Msg 3 -->
+                <div class="message-item">
+                    <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=100&auto=format&fit=crop" class="chat-avatar" alt="Anya">
+                    <div>
+                        <span class="msg-author">Dr. Anya Sharma</span>
+                        <div class="msg-bubble">
+                            Thank you, that's very clear.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Input -->
+            <div class="chat-input-area">
+                <div class="chat-input-wrapper">
+                    <input type="text" class="chat-input" placeholder="Ask a question...">
+                    <button class="btn-send">
+                        <i class="fa-solid fa-paper-plane"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        // Toggle Sidebar for Mobile
+        function toggleSidebar() {
+            const sidebar = document.getElementById('leftSidebar');
+            const overlay = document.getElementById('overlay');
+            sidebar.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+    </script>
+
+    <script>
+const courseId = new URLSearchParams(location.search).get("course");
+let currentLesson = new URLSearchParams(location.search).get("lesson");
+
+$.get("api/course/lessons.php",{course_id:courseId}, lessons=>{
+    let html="";
+    lessons.forEach(l=>{
+        html+=`
+        <a href="?course=${courseId}&lesson=${l.id}"
+           class="lesson-item ${l.id==currentLesson?'active':''} ${l.completed?'completed':''}">
+           <i class="fa-solid ${l.completed?'fa-circle-check':'fa-play-circle'} status-icon"></i>
+           ${l.title}
+        </a>`;
+    });
+    $(".module-list").html(html);
+});
+</script>
+<script>
+$.get("api/course/lesson-details.php",{lesson_id:currentLesson}, r=>{
+    $(".video-placeholder").attr("src", r.lesson.video_url);
+    $(".accordion-body").html(r.lesson.transcript);
+});
+</script>
+<script>
+$.get("api/course/navigation.php",{lesson_id:currentLesson}, nav=>{
+    $(".btn-prev").toggle(!!nav.prev).click(()=>location.href=`?course=${courseId}&lesson=${nav.prev}`);
+    $(".btn-next").toggle(!!nav.next).click(()=>location.href=`?course=${courseId}&lesson=${nav.next}`);
+});
+</script>
+<script>
+setInterval(()=>{
+    $.post("api/course/progress-update.php",{
+        lesson_id:currentLesson,
+        progress:35
+    });
+},15000);
+</script>
+<script>
+function loadChat(){
+    $.get("api/chat/fetch.php",{lesson_id:currentLesson}, msgs=>{
+        $(".chat-messages").html("");
+        msgs.forEach(m=>{
+            $(".chat-messages").append(`
+            <div class="message-item ${m.role=='instructor'?'msg-instructor':''}">
+                <div class="msg-bubble">
+                    <strong>${m.user}</strong><br>${m.message}
+                </div>
+            </div>`);
+        });
+    });
+}
+
+loadChat();
+setInterval(loadChat,5000);
+
+$(".btn-send").click(()=>{
+    const msg=$(".chat-input").val();
+    $.post("api/chat/send.php",{
+        course_id:courseId,
+        lesson_id:currentLesson,
+        message:msg
+    },()=>{$(".chat-input").val(""); loadChat();});
+});
+</script>
+
+</body>
+</html>

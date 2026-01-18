@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediLearn - Schedule Live Session</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #1e293b;
+            padding-bottom: 6rem; /* Space for footer actions on mobile */
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background-color: white;
+            border-bottom: 1px solid #eef1f6;
+            padding: 0.8rem 0;
+            margin-bottom: 2rem;
+        }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b !important;
+            margin: 0 0.8rem;
+        }
+        .nav-link:hover {
+            color: #1d7afc !important;
+        }
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 1px solid #e2e8f0;
+        }
+        .btn-schedule-nav {
+            background-color: #1d7afc;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            border: none;
+            transition: background 0.2s;
+        }
+        .btn-schedule-nav:hover {
+            background-color: #1664d6;
+        }
+
+        /* --- Page Header --- */
+        .page-header {
+            margin-bottom: 2rem;
+        }
+        .page-title {
+            font-weight: 800;
+            font-size: 2rem;
+            color: #0f172a;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+        }
+
+        /* --- Cards --- */
+        .form-card {
+            background: white;
+            border: 1px solid #eef1f6;
+            border-radius: 1rem;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 2px 4px -1px rgba(0, 0, 0, 0.02);
+        }
+        .card-heading {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Form Controls */
+        .form-label {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        .form-control {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.95rem;
+            color: #334155;
+        }
+        .form-control:focus {
+            border-color: #1d7afc;
+            box-shadow: 0 0 0 3px rgba(29, 122, 252, 0.1);
+        }
+        .form-control::placeholder {
+            color: #94a3b8;
+        }
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        /* Tag Input Mock */
+        .tag-input-container {
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            background: white;
+            transition: border-color 0.2s;
+            cursor: text;
+        }
+        .tag-input-container:focus-within {
+            border-color: #1d7afc;
+            box-shadow: 0 0 0 3px rgba(29, 122, 252, 0.1);
+        }
+        .tag {
+            background-color: #e0f2fe;
+            color: #0284c7;
+            font-size: 0.85rem;
+            font-weight: 600;
+            padding: 0.25rem 0.75rem;
+            border-radius: 2rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .tag-close {
+            cursor: pointer;
+            font-size: 0.8rem;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+        }
+        .tag-close:hover { opacity: 1; }
+        .tag-input-field {
+            border: none;
+            outline: none;
+            flex-grow: 1;
+            font-size: 0.95rem;
+            padding: 0.25rem;
+            min-width: 120px;
+            color: #334155;
+        }
+
+        /* Date/Time Row */
+        .date-time-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr;
+            gap: 1.5rem;
+        }
+        .input-icon-wrapper {
+            position: relative;
+        }
+        /* Using native date/time inputs which have internal icons, 
+           but CSS can position custom icons if needed. 
+           Here relying on form-control styling. */
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+
+        /* Invite Section */
+        .invite-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f8fafc;
+        }
+        .invite-item:last-child {
+            border-bottom: none;
+        }
+        .invite-user {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        .invite-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .invite-name {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #0f172a;
+            display: block;
+        }
+        .invite-role {
+            font-size: 0.75rem;
+            color: #64748b;
+        }
+        .btn-remove {
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .btn-remove:hover { color: #ef4444; }
+
+        /* --- Right Sidebar (Preview) --- */
+        .preview-card {
+            background: white;
+            border: 1px solid #eef1f6;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            position: sticky;
+            top: 6rem; /* Sticks when scrolling, accounting for navbar */
+        }
+        .preview-img {
+            width: 100%;
+            border-radius: 0.75rem;
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            margin-bottom: 1.25rem;
+            border: 1px solid #f1f5f9;
+        }
+        .preview-title {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            margin-bottom: 0.5rem;
+            line-height: 1.4;
+        }
+        .preview-host {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 1.25rem;
+            padding-bottom: 1.25rem;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .preview-meta {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.85rem;
+            color: #475569;
+            margin-bottom: 0.75rem;
+        }
+        .preview-meta i {
+            width: 16px;
+            text-align: center;
+            color: #94a3b8;
+        }
+        
+        /* Configuration List */
+        .config-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .config-item {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+        .check-circle { color: #10b981; }
+        .cross-circle { color: #94a3b8; }
+        .text-enabled { color: #10b981; }
+        .text-disabled { color: #64748b; }
+
+        /* --- Footer Actions --- */
+        .action-footer {
+            margin-top: 2rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        .btn-draft {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            transition: background 0.2s;
+        }
+        .btn-draft:hover { background-color: #cbd5e1; }
+        
+        .btn-publish {
+            background-color: #1d7afc;
+            color: white;
+            font-weight: 600;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            border: none;
+            transition: background 0.2s;
+        }
+        .btn-publish:hover { background-color: #1664d6; }
+
+        /* Responsive Breakpoints */
+        @media (max-width: 991.98px) {
+            .date-time-row {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+            .navbar .container {
+                justify-content: space-between;
+            }
+            .nav-link-group {
+                display: none;
+            }
+            .action-footer {
+                justify-content: space-between; 
+            }
+            .btn-draft, .btn-publish {
+                flex: 1;
+            }
+            .preview-card {
+                position: static; /* Unstick on mobile */
+                margin-top: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-shield-halved text-primary"></i>
+                MedLearn
+            </a>
+            
+            <!-- Desktop Nav -->
+            <div class="d-none d-lg-flex align-items-center gap-4 nav-link-group">
+                <a href="#" class="nav-link">Dashboard</a>
+                <a href="#" class="nav-link">My Sessions</a>
+                <a href="#" class="nav-link">Profile</a>
+            </div>
+
+            <!-- Right Controls -->
+            <div class="d-flex align-items-center gap-3">
+                <button class="btn-schedule-nav d-none d-sm-block">
+                    <i class="fa-solid fa-plus me-1"></i> New Session
+                </button>
+                <img src="https://images.unsplash.com/photo-1599566150163-29194dcaad36?q=80&w=200&auto=format&fit=crop" 
+                     class="user-avatar" alt="Dr. Alex Ray">
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <div class="page-header">
+            <h1 class="page-title">Schedule a New Live Session</h1>
+            <p class="page-subtitle">Fill in the details below to create and configure your training session.</p>
+        </div>
+
+        <div class="row g-4">
+            
+            <!-- Left Column: Input Form -->
+            <div class="col-lg-8">
+                
+                <!-- Card 1: Session Details -->
+                <div class="form-card">
+                    <h3 class="card-heading">Session Details</h3>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Session Title</label>
+                        <input type="text" class="form-control" placeholder="e.g., Advanced Cardiac Life Support Update" value="Advanced Cardiac Life Support Update">
+                    </div>
+
+                    <div class="mb-0">
+                        <label class="form-label">Brief Description / Learning Objectives</label>
+                        <textarea class="form-control" placeholder="Describe the session and what participants will learn."></textarea>
+                    </div>
+                </div>
+
+                <!-- Card 2: Topics -->
+                <div class="form-card">
+                    <h3 class="card-heading">Relevant Topics/Categories</h3>
+                    <div class="tag-input-container" onclick="document.getElementById('topicInput').focus()">
+                        <span class="tag">Cardiology <i class="fa-solid fa-xmark tag-close" onclick="this.parentElement.remove()"></i></span>
+                        <span class="tag">ACLS <i class="fa-solid fa-xmark tag-close" onclick="this.parentElement.remove()"></i></span>
+                        <input type="text" id="topicInput" class="tag-input-field" placeholder="Add a topic...">
+                    </div>
+                </div>
+
+                <!-- Card 3: Date and Time -->
+                <div class="form-card">
+                    <h3 class="card-heading">Date and Time</h3>
+                    
+                    <div class="date-time-row">
+                        <!-- Date -->
+                        <div>
+                            <label class="form-label">Session Date</label>
+                            <input type="date" class="form-control" value="2024-10-26">
+                        </div>
+                        <!-- Start -->
+                        <div>
+                            <label class="form-label">Start Time</label>
+                            <input type="time" class="form-control" value="14:00">
+                        </div>
+                        <!-- End -->
+                        <div>
+                            <label class="form-label">End Time</label>
+                            <input type="time" class="form-control" value="15:30">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: Audience -->
+                <div class="form-card mb-0">
+                    <h3 class="card-heading">Audience & Invitations</h3>
+                    
+                    <div class="mb-4">
+                        <label class="form-label">Invite Participants</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fa-solid fa-magnifying-glass search-icon"></i>
+                            <input type="text" class="form-control" style="padding-left: 2.5rem;" placeholder="Search for colleagues or user groups...">
+                        </div>
+                    </div>
+
+                    <label class="form-label text-secondary small text-uppercase fw-bold mb-2">2 Participants Invited</label>
+                    
+                    <div class="invite-item">
+                        <div class="invite-user">
+                            <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100&auto=format&fit=crop" class="invite-avatar" alt="Dr. Carter">
+                            <div>
+                                <span class="invite-name">Dr. Emily Carter</span>
+                                <span class="invite-role">Cardiology Fellow</span>
+                            </div>
+                        </div>
+                        <button class="btn-remove"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+
+                    <div class="invite-item">
+                        <div class="invite-user">
+                            <img src="https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=100&auto=format&fit=crop" class="invite-avatar" alt="Dr. Stern">
+                            <div>
+                                <span class="invite-name">Dr. Ben Stern</span>
+                                <span class="invite-role">Pediatric Resident</span>
+                            </div>
+                        </div>
+                        <button class="btn-remove"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Preview Sidebar -->
+            <div class="col-lg-4">
+                <div class="preview-card shadow-sm">
+                    <h3 class="card-heading mb-4">Session Preview</h3>
+                    
+                    <img src="https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?q=80&w=600&auto=format&fit=crop" class="preview-img" alt="Session Preview">
+                    
+                    <h4 class="preview-title">Advanced Cardiac Life Support Update</h4>
+                    <div class="preview-host">Hosted by Dr. Alex Ray</div>
+
+                    <div class="preview-meta">
+                        <i class="fa-regular fa-calendar"></i>
+                        Tuesday, October 26, 2024
+                    </div>
+                    <div class="preview-meta pb-4 border-bottom mb-4">
+                        <i class="fa-regular fa-clock"></i>
+                        2:00 PM - 3:30 PM (EDT)
+                    </div>
+
+                    <h5 class="form-label mb-3">Configuration</h5>
+                    <ul class="config-list">
+                        <li class="config-item text-enabled">
+                            <i class="fa-solid fa-circle-check check-circle"></i>
+                            Session Recording Enabled
+                        </li>
+                        <li class="config-item text-enabled">
+                            <i class="fa-solid fa-circle-check check-circle"></i>
+                            Live Q&A Enabled
+                        </li>
+                        <li class="config-item text-disabled">
+                            <i class="fa-solid fa-circle-xmark cross-circle"></i>
+                            Chat Disabled
+                        </li>
+                    </ul>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div class="action-footer">
+            <button class="btn-draft">Save as Draft</button>
+            <button class="btn-publish">Publish Session</button>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <script>
+        // Simple script to handle tag addition
+        const topicInput = document.getElementById('topicInput');
+        topicInput.addEventListener('keypress', function (e) {
+            if (e.key === 'Enter' && this.value.trim() !== '') {
+                e.preventDefault(); // Prevent form submission
+                const tagSpan = document.createElement('span');
+                tagSpan.className = 'tag';
+                // Note: In real app, bind remove event efficiently
+                tagSpan.innerHTML = `${this.value.trim()} <i class="fa-solid fa-xmark tag-close" onclick="this.parentElement.remove()"></i>`;
+                
+                // Insert before the input field
+                this.parentElement.insertBefore(tagSpan, this);
+                this.value = '';
+            }
+        });
+
+        // Simple script to handle removing participants
+        document.querySelectorAll('.btn-remove').forEach(btn => {
+            btn.addEventListener('click', function() {
+                this.closest('.invite-item').remove();
+            });
+        });
+    </script>
+<script>
+$(".btn-publish").click(function () {
+
+    const tags = [];
+    $(".tag").each(function () {
+        tags.push($(this).text().trim());
+    });
+
+    $.ajax({
+        url: "api/courses/create.php",
+        method: "POST",
+        contentType: "application/json",
+        data: JSON.stringify({
+            course_type_id: 2, // live
+            category_id: 1,
+            subcategory_id: 2,
+            title: $("input[placeholder*='Advanced']").val(),
+            description: $("textarea").val(),
+            instructor_id: 1,
+            session_date: $("input[type='date']").val(),
+            start_time: $("input[type='time']").eq(0).val(),
+            end_time: $("input[type='time']").eq(1).val(),
+            max_participants: 100,
+            tags: tags
+        }),
+        success: function (res) {
+            alert("Session published successfully!");
+        },
+        error: function () {
+            alert("Failed to publish session");
+        }
+    });
+
+});
+</script>
+
+</body>
+</html>

@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CardioLearn - Waiting Room</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #1e293b;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* --- Navbar --- */
+        .navbar {
+            background-color: white;
+            border-bottom: 1px solid #eef1f6;
+            padding: 0.8rem 0;
+        }
+        .navbar-brand {
+            font-weight: 800;
+            font-size: 1.25rem;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .nav-link {
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #64748b !important;
+            margin: 0 0.8rem;
+        }
+        .nav-link:hover {
+            color: #0f172a !important;
+        }
+        .icon-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background-color: #f1f5f9;
+            color: #64748b;
+            border: none;
+            transition: background 0.2s;
+        }
+        .icon-btn:hover {
+            background-color: #e2e8f0;
+        }
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #fed7aa; /* Placeholder color */
+            border: 2px solid white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* --- Main Content --- */
+        .page-title {
+            font-weight: 800;
+            color: #0f172a;
+            font-size: 2rem;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+        }
+        .page-subtitle {
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-bottom: 2.5rem;
+        }
+
+        /* --- Cards --- */
+        .content-card {
+            background: white;
+            border: 1px solid #eef1f6;
+            border-radius: 1rem;
+            padding: 2rem;
+            height: 100%;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02);
+        }
+        .card-heading {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #0f172a;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Instructor Section */
+        .instructor-profile {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        .instructor-img {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        .instructor-name {
+            font-weight: 700;
+            color: #0f172a;
+            font-size: 1rem;
+            margin-bottom: 0.1rem;
+        }
+        .instructor-title {
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+        .instructor-bio {
+            margin-top: 1rem;
+            font-size: 0.9rem;
+            color: #475569;
+            line-height: 1.6;
+        }
+
+        /* Session Details */
+        .detail-row {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            color: #334155;
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+        .detail-icon {
+            color: #64748b;
+            width: 20px;
+            text-align: center;
+        }
+
+        /* Countdown Card */
+        .countdown-container {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0 2rem 0;
+        }
+        .time-box {
+            background-color: #f8fafc;
+            border-radius: 0.75rem;
+            padding: 1rem;
+            min-width: 80px;
+            text-align: center;
+        }
+        .time-val {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1;
+            display: block;
+        }
+        .time-label {
+            font-size: 0.75rem;
+            color: #64748b;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-top: 0.5rem;
+            display: block;
+        }
+        .btn-wait {
+            width: 100%;
+            background-color: #e2e8f0;
+            color: #64748b;
+            font-weight: 700;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            border: none;
+            cursor: not-allowed;
+            font-size: 1rem;
+        }
+        .btn-join-active {
+            background-color: #1d7afc;
+            color: white;
+            cursor: pointer;
+        }
+        .btn-join-active:hover {
+            background-color: #1664d6;
+        }
+
+        /* Lists */
+        .learning-list {
+            padding-left: 1.2rem;
+            margin-bottom: 1.5rem;
+        }
+        .learning-list li {
+            margin-bottom: 0.5rem;
+            color: #475569;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+        .instructions-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        .instructions-list li {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #475569;
+            font-size: 0.95rem;
+        }
+        .bullet-dot {
+            color: #cbd5e1;
+            font-size: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        /* System Check */
+        .check-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .check-item:last-child {
+            border-bottom: none;
+        }
+        .check-label {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 600;
+            color: #334155;
+            font-size: 0.95rem;
+        }
+        .status-success {
+            color: #10b981; /* Green */
+        }
+        .status-text {
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .test-link {
+            color: #1d7afc;
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+        .test-link:hover { text-decoration: underline; }
+        .text-excellent { color: #64748b; }
+
+        /* Footer */
+        .footer {
+            margin-top: auto;
+            padding: 2rem 0;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+            border-top: 1px solid #eef1f6;
+        }
+        .footer a {
+            color: #64748b;
+            text-decoration: none;
+            margin: 0 0.5rem;
+        }
+        .footer a:hover {
+            color: #0f172a;
+        }
+
+        /* Responsive */
+        @media (max-width: 991.98px) {
+            .page-title { font-size: 1.5rem; }
+            .countdown-container { gap: 0.75rem; }
+            .time-box { min-width: 60px; padding: 0.75rem; }
+            .time-val { font-size: 1.5rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navbar -->
+    <nav class="navbar sticky-top">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fa-solid fa-shapes text-primary"></i>
+                CardioLearn
+            </a>
+            
+            <div class="d-none d-md-flex align-items-center">
+                <a href="learner-dashboard.html" class="nav-link">Dashboard</a>
+                <a href="courses.html" class="nav-link active">Courses</a>
+                <a href="#" class="nav-link">Help</a>
+            </div>
+
+            <div class="d-flex align-items-center gap-3 ms-auto ms-md-0">
+                <button class="icon-btn">
+                    <i class="fa-regular fa-bell"></i>
+                </button>
+                <div class="user-avatar">
+                    <!-- Avatar Image -->
+                    <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=100&auto=format&fit=crop" 
+                         alt="User" style="width:100%; height:100%; object-fit:cover; border-radius:50%;">
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container py-5">
+        
+        <!-- Header -->
+        <h1 class="page-title">Advanced Cardiac Life Support (ACLS) Update</h1>
+        <p class="page-subtitle">A comprehensive review of the latest guidelines and case studies for healthcare professionals.</p>
+
+        <div class="row g-4">
+            
+            <!-- LEFT COLUMN -->
+            <div class="col-lg-8">
+                
+                <!-- Instructor & Session Details Card -->
+                <div class="content-card mb-4">
+                    <div class="row g-4">
+                        <div class="col-md-6 border-end-md">
+                            <h3 class="card-heading">Instructor</h3>
+                            <div class="instructor-profile">
+                                <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200&auto=format&fit=crop" 
+                                     alt="Dr. Jane Doe" class="instructor-img">
+                                <div>
+                                    <div class="instructor-name">Dr. Jane Doe</div>
+                                    <div class="instructor-title">MD, FACC</div>
+                                </div>
+                            </div>
+                            <p class="instructor-bio">
+                                Dr. Doe is a board-certified cardiologist with over 15 years of experience in emergency cardiac care and medical education.
+                            </p>
+                        </div>
+                        <div class="col-md-6 ps-md-4">
+                            <h3 class="card-heading">Session Details</h3>
+                            <div class="detail-row">
+                                <i class="fa-regular fa-calendar detail-icon"></i>
+                                <span>July 26, 2025</span>
+                            </div>
+                            <div class="detail-row">
+                                <i class="fa-regular fa-clock detail-icon"></i>
+                                <span>10:00 AM - 11:30 AM (PT)</span>
+                            </div>
+                            <div class="detail-row">
+                                <i class="fa-solid fa-hourglass-half detail-icon"></i>
+                                <span>90 Minutes</span>
+                            </div>
+                            <div class="detail-row">
+                                <i class="fa-solid fa-graduation-cap detail-icon"></i>
+                                <span>1.5 CME Credits</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agenda Card -->
+                <div class="content-card">
+                    <h3 class="card-heading">Agenda & Instructions</h3>
+                    
+                    <h5 class="fw-bold fs-6 text-dark mb-2">Learning Objectives:</h5>
+                    <ul class="learning-list">
+                        <li>Review the latest 2025 ACLS guideline changes.</li>
+                        <li>Analyze complex cardiac arrest case studies.</li>
+                        <li>Improve team dynamics during resuscitation attempts.</li>
+                    </ul>
+
+                    <h5 class="fw-bold fs-6 text-dark mb-2">Instructions:</h5>
+                    <ul class="instructions-list">
+                        <li>
+                            <i class="fa-solid fa-circle bullet-dot"></i>
+                            <span>Please ensure your internet connection is stable.</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle bullet-dot"></i>
+                            <span>Your microphone will be muted upon entry.</span>
+                        </li>
+                        <li>
+                            <i class="fa-solid fa-circle bullet-dot"></i>
+                            <span>Use the Q&A panel to ask questions during the session.</span>
+                        </li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- RIGHT COLUMN -->
+            <div class="col-lg-4">
+                
+                <!-- Countdown Card -->
+                <div class="content-card mb-4 text-center">
+                    <div class="text-secondary fw-semibold small">Session starts in</div>
+                    
+                    <div class="countdown-container">
+                        <div class="time-box">
+                            <span class="time-val" id="hours">00</span>
+                            <span class="time-label">Hours</span>
+                        </div>
+                        <div class="time-box">
+                            <span class="time-val" id="minutes">15</span>
+                            <span class="time-label">Minutes</span>
+                        </div>
+                        <div class="time-box">
+                            <span class="time-val" id="seconds">32</span>
+                            <span class="time-label">Seconds</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-wait" id="joinBtn" onclick="window.open('live-session.html', '_self')">
+                        Waiting for host...
+                    </button>
+                </div>
+
+                <!-- System Check Card -->
+                <div class="content-card">
+                    <h3 class="card-heading">System Check</h3>
+                    
+                    <div class="check-item">
+                        <div class="check-label">
+                            <i class="fa-solid fa-circle-check status-success"></i>
+                            Camera
+                        </div>
+                        <a href="#" class="test-link">Test</a>
+                    </div>
+                    
+                    <div class="check-item">
+                        <div class="check-label">
+                            <i class="fa-solid fa-circle-check status-success"></i>
+                            Microphone
+                        </div>
+                        <a href="#" class="test-link">Test</a>
+                    </div>
+                    
+                    <div class="check-item">
+                        <div class="check-label">
+                            <i class="fa-solid fa-circle-check status-success"></i>
+                            Internet Connection
+                        </div>
+                        <span class="status-text text-excellent">Excellent</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p class="mb-2">© 2025 CardioLearn, Inc. All rights reserved.</p>
+            <div>
+                <a href="#">Terms of Service</a> · 
+                <a href="#">Privacy Policy</a> · 
+                <a href="#">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Countdown Logic -->
+    <script>
+        // Set countdown time (15 minutes from now for demo)
+        let totalSeconds = 15 * 60 + 32;
+
+        function updateTimer() {
+            const h = Math.floor(totalSeconds / 3600);
+            const m = Math.floor((totalSeconds % 3600) / 60);
+            const s = totalSeconds % 60;
+
+            document.getElementById('hours').innerText = h < 10 ? '0' + h : h;
+            document.getElementById('minutes').innerText = m < 10 ? '0' + m : m;
+            document.getElementById('seconds').innerText = s < 10 ? '0' + s : s;
+
+            if (totalSeconds > 0) {
+                totalSeconds--;
+            } else {
+                // Timer finished
+                clearInterval(timerInterval);
+                const btn = document.getElementById('joinBtn');
+                btn.disabled = true;
+                btn.classList.add('btn-join-active');
+                btn.classList.remove('btn-wait');
+                btn.innerText = 'Join Session';
+                btn.onclick = function() { alert('Joining session...'); };
+            }
+        }
+
+        const timerInterval = setInterval(updateTimer, 1000);
+        updateTimer(); // Initial call
+    </script>
+</body>
+</html>
