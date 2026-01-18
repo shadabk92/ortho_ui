@@ -1,26 +1,52 @@
 <?php
 // FILE: api/config.php
 
-// 1. Handle CORS (Cross-Origin Resource Sharing)
-// This allows your HTML file to fetch data from this PHP file without security blocks.
+// 1. CORS Headers
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Content-Type: application/json; charset=UTF-8");
 
-// Handle "Preflight" OPTIONS request (Browser checks)
+// Handle Preflight
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-// 2. Start Session (Global)
-// We do this here so you don't have to write session_start() in every single API file.
+// 2. ERROR HANDLING WRAPPER
+// Turn off standard error printing so it doesn't break JSON
+ini_set('display_errors', 0); 
+error_reporting(E_ALL);
+
+// Start Output Buffering (captures accidental echoes)
+ob_start();
+
+// Shutdown Function: Catches Fatal PHP Errors (500s)
+register_shutdown_function(function() {
+    $error = error_get_last();
+    if ($error !== NULL && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR])) {
+        ob_clean(); // Remove HTML garbage
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "message" => "Critical Server Error",
+            "debug_error" => [
+                "type" => "Fatal PHP Error",
+                "message" => $error['message'],
+                "file" => $error['file'],
+                "line" => $error['line']
+            ]
+        ]);
+    }
+    ob_end_flush();
+});
+
+// 3. Start Session
 if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// 3. Database Connection
+// 4. Database Connection
 $host = '127.0.0.1';
 $db   = 'orthoui_db';
 $user = 'orthoui_user';
@@ -38,13 +64,13 @@ $options = [
 try {
     $pdo = new PDO($dsn, $user, $pass, $options);
 } catch (\PDOException $e) {
-    // 4. Error Handling
-    // Instead of crashing with a 502/500 error, we return a JSON response.
+    ob_clean();
     http_response_code(500);
     echo json_encode([
         "success" => false, 
-        "message" => "Database Connection Failed: " . $e->getMessage()
+        "message" => "Database Connection Failed",
+        "debug_error" => $e->getMessage()
     ]);
-    exit; // Stop execution immediately
+    exit;
 }
 ?>

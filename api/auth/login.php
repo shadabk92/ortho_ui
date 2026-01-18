@@ -1,28 +1,20 @@
 <?php
-session_start();
+// FILE: api/auth/login.php
+require "../config.php"; 
 
-// Error reporting for debugging (Disable in production)
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+$input = file_get_contents("php://input");
+$data = json_decode($input, true);
 
-header('Content-Type: application/json');
-
-// FIXED PATH: Go up one level from 'auth' to 'api'
-if (!file_exists("../config.php")) {
-    http_response_code(500);
-    echo json_encode(["success" => false, "message" => "Server Config Missing"]);
+// Debug: Check if JSON is valid
+if ($data === null && !empty($input)) {
+    http_response_code(400);
+    echo json_encode(["success" => false, "message" => "Invalid JSON format received", "debug_error" => $input]);
     exit;
 }
 
-require "../config.php"; 
-
-// Get JSON input
-$data = json_decode(file_get_contents("php://input"), true);
-
-// Basic validation
 if (!isset($data['method']) || !isset($data['identifier']) || !isset($data['password'])) {
     http_response_code(400);
-    echo json_encode(["success"=>false, "message"=>"Missing credentials"]);
+    echo json_encode(["success"=>false, "message"=>"Missing required login fields"]);
     exit;
 }
 
@@ -38,16 +30,21 @@ try {
     }
 
     $stmt->execute([$identifier]);
-    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+    $user = $stmt->fetch();
 
-    // Verify user and password
+    // Verify Password
     if (!$user || !password_verify($password, $user['password'])) {
         http_response_code(401);
-        echo json_encode(["success"=>false,"message"=>"Invalid login credentials"]);
+        echo json_encode([
+            "success"=>false,
+            "message"=>"Invalid login credentials",
+            // DEBUG: This tells you exactly why it failed in Console
+            "debug_error" => "User found: " . ($user ? "Yes" : "No") . ". Password Match: " . ($user && password_verify($password, $user['password']) ? "Yes" : "No")
+        ]);
         exit;
     }
 
-    /* ✅ SET SESSION */
+    // Set Session
     $_SESSION['user_id'] = $user['id'];
     $_SESSION['usertype_id'] = $user['usertype_id'];
     $_SESSION['name'] = $user['first_name'];
@@ -63,6 +60,6 @@ try {
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["success" => false, "message" => "DB Error: " . $e->getMessage()]);
+    echo json_encode(["success" => false, "message" => "Database Query Failed", "debug_error" => $e->getMessage()]);
 }
 ?>
